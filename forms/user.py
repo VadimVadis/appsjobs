@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField, IntegerField
+from wtforms import PasswordField, StringField, SubmitField, EmailField, IntegerField, BooleanField
 from wtforms.validators import DataRequired
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class RegisterForm(FlaskForm):
@@ -14,4 +13,11 @@ class RegisterForm(FlaskForm):
     email = EmailField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
     password_again = PasswordField('password_again', validators=[DataRequired()])
+    submit = SubmitField('submit')
+
+
+class LoginForm(FlaskForm):
+    email = EmailField('email', validators=[DataRequired()])
+    password = PasswordField('password', validators=[DataRequired()])
+    remember_me = BooleanField('remember_me')
     submit = SubmitField('submit')
