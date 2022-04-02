@@ -99,7 +99,7 @@ def add_jobs():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('jobs.html', title='Добавление новости',
+    return render_template('jobs.html', title='Добавление Работы',
                            form=form)
 
 
