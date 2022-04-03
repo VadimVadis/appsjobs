@@ -56,6 +56,7 @@ def reqister():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
+        return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -103,33 +104,31 @@ def add_jobs():
                            form=form)
 
 
-@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@app.route('/jobs/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_news(id):
+def edit_jobs(id):
     form = JobsForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        jb = db_sess.query(Jobs).filter(Jobs.id == id,
-                                        Jobs.user == current_user
-                                        ).first()
-        if jb:
-            jobs = Jobs()
-            jobs.team_leader = form.team_leader.data
-            jobs.job = form.job.data
-            jobs.work_size = form.work_size.data
-            jobs.collaborators = form.collaborators.data
-            jobs.start_date = form.start_date.data
-            jobs.end_date = form.end_date.data
-            jobs.is_finished = form.is_finished.data
+        jobs = db_sess.query(Jobs).filter(Jobs.id == id)\
+            .filter((Jobs.user == current_user) | (current_user.id == 1)).first()
+
+        if jobs:
+            form.team_leader.data = jobs.team_leader
+            form.job.data = jobs.job
+            form.work_size.data = jobs.work_size
+            form.collaborators.data = jobs.collaborators
+            form.start_date.data = jobs.start_date
+            form.end_date.data = jobs.end_date
+            form.is_finished.data = jobs.is_finished
         else:
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        jb = db_sess.query(Jobs).filter(Jobs.id == id,
-                                        Jobs.user == current_user
-                                        ).first()
-        if jb:
-            jobs = Jobs()
+        jobs = db_sess.query(Jobs).filter(Jobs.id == id)\
+            .filter((Jobs.user == current_user) | (current_user.id == 1)).first()
+
+        if jobs:
             jobs.team_leader = form.team_leader.data
             jobs.job = form.job.data
             jobs.work_size = form.work_size.data
@@ -137,6 +136,7 @@ def edit_news(id):
             jobs.start_date = form.start_date.data
             jobs.end_date = form.end_date.data
             jobs.is_finished = form.is_finished.data
+            db_sess.commit()
             return redirect('/')
         else:
             abort(404)
@@ -144,6 +144,20 @@ def edit_news(id):
                            title='Редактирование новости',
                            form=form
                            )
+
+
+@app.route('/jobs_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def jobs_delete(id):
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).filter(Jobs.id == id) \
+        .filter((Jobs.user == current_user) | (current_user.id == 1)).first()
+    if jobs:
+        db_sess.delete(jobs)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 if __name__ == '__main__':
