@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1 align="center">Works log</h1>
+<div><a href="/departments" class="btn btn-outline-info">Перейти к списку Департаментов</a></div>
 {% if current_user.is_authenticated %}
     <a href="jobs" class="btn btn-secondary">Добавить работу</a>
 {% endif %}
@@ -13,7 +14,7 @@
       Title of activity
     </div>
     <div class="col-sm">
-      Team leader
+      Team leader ID
     </div>
     <div class="col-sm">
       Duration
@@ -46,7 +47,7 @@
         {% endif %}
     </div>
   </div>
-  {% if current_user.is_authenticated and (current_user == item.user or current_user.id == 1)%}
+  {% if current_user.is_authenticated and (item.user_add == current_user.id or current_user.id == 1)%}
     <div>
         <a href="/jobs/{{ item.id }}" class="btn btn-warning">
             Изменить
