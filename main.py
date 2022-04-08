@@ -1,11 +1,13 @@
-from flask import Flask, redirect, render_template, request
+from flask import Flask, redirect, render_template, request, make_response, jsonify
 from os import abort
 from forms.user import RegisterForm, LoginForm
 from forms.job_add import JobsForm
 from forms.departament_add import DepartmentForm
 import db_session
 from users import User
+import jobs_api
 from jobs import Jobs
+import user_api
 from departments import Department
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
@@ -21,8 +23,15 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
 def main():
     db_session.global_init("db/blogs.db")
+    app.register_blueprint(jobs_api.blueprint)
+    app.register_blueprint(user_api.blueprint)
     app.run()
 
 
@@ -113,7 +122,7 @@ def edit_jobs(id):
     form = JobsForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        jobs = db_sess.query(Jobs).filter(Jobs.id == id)\
+        jobs = db_sess.query(Jobs).filter(Jobs.id == id) \
             .filter((Jobs.user_add == current_user.id) | (current_user.id == 1)).first()
 
         if jobs:
@@ -128,7 +137,7 @@ def edit_jobs(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        jobs = db_sess.query(Jobs).filter(Jobs.id == id)\
+        jobs = db_sess.query(Jobs).filter(Jobs.id == id) \
             .filter((Jobs.user_add == current_user.id) | (current_user.id == 1)).first()
 
         if jobs:
@@ -196,7 +205,7 @@ def edit_departments(id):
     form = DepartmentForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        departments = db_sess.query(Department).filter(Department.id == id)\
+        departments = db_sess.query(Department).filter(Department.id == id) \
             .filter((Department.user_add == current_user.id) | (current_user.id == 1)).first()
 
         if departments:
@@ -209,7 +218,7 @@ def edit_departments(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        departments = db_sess.query(Department).filter(Department.id == id)\
+        departments = db_sess.query(Department).filter(Department.id == id) \
             .filter((Department.user_add == current_user.id) | (current_user.id == 1)).first()
 
         if departments:
